@@ -3,7 +3,10 @@
 この拡張機能ではある一定のポイント(optionページで変更可)を超えたユーザーを非表示にします。非表示化する為の詳細はオプションページをご覧ください。
 \
 \
-**加点対象となる要素**
+この拡張機能はまだ開発中であり、バグが含まれている可能性があります。(Please do keep in mind that this extension is still in heavy development, it may still contains bugs.)
+\
+\
+**対象とできる要素**
 - 絵文字や画像、動画、リンクのみでのリプライ
 - 特定の言語でのリプライ(Unicode)
 - 認証済みパッチ
