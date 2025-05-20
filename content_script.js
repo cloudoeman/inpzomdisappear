@@ -407,6 +407,9 @@ const checkObjects = {
   },
 
   tweetEval: function (replyEl, usrId, num) {
+    //初期化
+    systemFunc.idPointList[num].totalPoint = 0;
+
     const textCate = checkObjects.tweetTexts(replyEl, usrId);
     const img = checkObjects.imgCheck(replyEl);
     const video = checkObjects.videoCheck(replyEl);
