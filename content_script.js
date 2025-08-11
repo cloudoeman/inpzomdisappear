@@ -193,16 +193,22 @@ const systemFunc = {
       if (lisNum <= 1 && observeObject.category === 'reply') {//Excluding only tweet host
         return;
       }
-      const usrId = this.setId(TlList);
-      if (!usrId) {
+      const usrIdandName = this.setId(TlList);
+      let usrId;
+      let usrName;
+      if (usrIdandName) {
+        usrId = usrIdandName.usrId;
+        usrName = usrIdandName.setName;
+      }     
+      if (!usrIdandName) {
         return;
       } else if (!(usrId in replyObjects.tweetTextList)) {
         this.idPointList.push(new idPoint(usrId));
-        debug.log(DEBUG_LEVEL.INFO, `instance class:${lisNum}:${usrId}`);
-        checkObjects.tweetEval(TlList, usrId, checkObjects.targetNum(usrId));
+        debug.log(DEBUG_LEVEL.INFO, `Instance class→No.${lisNum}:${usrId} (xName:${usrName})`);
+        checkObjects.tweetEval(TlList, usrId, usrName, checkObjects.targetNum(usrId));
       } else {
         debug.log(DEBUG_LEVEL.INFO, `RECHECK class:${usrId}`);
-        checkObjects.tweetEval(TlList, usrId, checkObjects.targetNum(usrId));
+        checkObjects.tweetEval(TlList, usrId, usrName, checkObjects.targetNum(usrId));
       }
     });
   },
@@ -210,19 +216,31 @@ const systemFunc = {
   // Set custom data attribute with user ID
   setId: function (replyEl) {
     if (replyEl.querySelector('[role=link]')) {
-      const UsrIdEl = replyEl.querySelector('a[href^="/"]');
+      const UsrIdEle = replyEl.querySelectorAll('a[href^="/"]');
+      const UsrIdEl = UsrIdEle[1];
       if (UsrIdEl) {
         let usrId = UsrIdEl.getAttribute('href');
         usrId = usrId.replace(/^\//g, '');
         if (!replyEl.querySelector(`[data-xusrid="${usrId}"]`)) {
           replyEl.dataset.xusrid = usrId;// Set custom data attribute with user ID
-          return usrId;
+          const setName = this.setName(UsrIdEl);
+          return {usrId ,setName};
         }
       } else {
         debug.log(DEBUG_LEVEL.ERROR, 'UsrIdEl is Null');
       }
     }
   },
+
+  setName: function (UsrIdEl) {
+    const UsrNameEl = UsrIdEl.getElementsByClassName('css-1jxf684 r-bcqeeo r-1ttztb7 r-qvutc0 r-1tl8opc');
+    if (UsrNameEl) {
+      const usrName = [...UsrNameEl].map(node => node.innerText);
+      return usrName[0];
+    } else {
+      debug.log(DEBUG_LEVEL.ERROR, 'UsrNameEl is Null');
+    }
+  }
 };
 
 
@@ -406,10 +424,7 @@ const checkObjects = {
     return boo;
   },
 
-  tweetEval: function (replyEl, usrId, num) {
-    //初期化
-    systemFunc.idPointList[num].totalPoint = 0;
-
+  tweetEval: function (replyEl, usrId, usrName, num) {
     const textCate = checkObjects.tweetTexts(replyEl, usrId);
     const img = checkObjects.imgCheck(replyEl);
     const video = checkObjects.videoCheck(replyEl);
@@ -435,14 +450,19 @@ const checkObjects = {
     } else if (textCate === 1) {
       systemFunc.idPointList[num].emoji = 1;
     } else {
-      debug.log(DEBUG_LEVEL.INFO, `\"392\"evalPoint:${evalPoint}`);
+      debug.log(DEBUG_LEVEL.INFO, `\"453\"evalPoint:${evalPoint}`);
     }
     systemFunc.idPointList[num].blue = blue;
+    //ブラックリスト言語regexチェック
+    if (checkObjects.blacklistCheck(usrName)) {
+      systemFunc.idPointList[num].lang = 1;
+    }
     replyObjects.tweetTextList[usrId].forEach(text => {
       if (checkObjects.blacklistCheck(text)) {
         systemFunc.idPointList[num].lang = 1;
       }
     });
+
     if (observeObject.category === 'reply') {
       systemFunc.idPointList[num].reply = replyT;
     } else if (observeObject.category === 'trend') {

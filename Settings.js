@@ -11,7 +11,7 @@ const zoexDefault = {
   mixTrendWordP: 5,
   langP: 5,
   replyTimes: 3,
-  blacklist: `[\\u0600-\\u06FF\\u0900-\\u097f\\u2600-\\u26FF]+`.replace(regStrip, ""), // default blacklist
+  blacklist: `[\\u0600-\\u06FF\\u0900-\\u097f\\u2600-\\u26FF\\u0B80-\\u0BFF]+`.replace(regStrip, ""), // default blacklist
 }
 
 const validate = function () {
